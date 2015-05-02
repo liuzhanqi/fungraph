@@ -4,28 +4,19 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
     	defaultTitle: "random variable"
   	};
 
-  	// var dragNode = d3.behavior.drag()  
-	  //   .on('dragstart', function() { 
-	  //   	circle.style('fill', 'aliceblue'); 
-	  //   })
-	  //   .on('drag', function() { 
-	  //   	circle.attr('cx', d3.event.x).attr('cy', d3.event.y); 
-	  //   })
-	  //   .on('dragend', function() { 
-	  //   	circle.style('fill', 'black'); 
-	  //   });
+  	var dragNode = d3.behavior.drag()
+	  	.on("drag", function (){
+		    var dragTarget = d3.select(this);
+		    dragTarget
+		        .attr("cx", function() {
+		        	return d3.event.dx + parseInt(dragTarget.attr("cx"));
+		        })
+		        .attr("cy", function() {
+		        	return d3.event.dy + parseInt(dragTarget.attr("cy"));
+		        });
+		});
 
-  	var Node = function(svg, parent, x, y) {
-
-  		var updateColor = function (node, parent) {
-			if (parent.state.selectedNode != node) {
-	    		d3.select(node).style("fill", "white");
-	    	} else {
-	    		d3.select(node).style("fill", "LightCoral");
-	    	}
-		};
-
-  		//constructor
+  	var Node = function(svg, x, y) {
   		if (Node.count == undefined) {
 	    	Node.count = 1;
 	    } else {
@@ -33,43 +24,44 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
 	    }
 	    var id = "Node_"+Node.count;
 	    this.x=x;this.y=y;this.id=id;
-  		svg.append("circle")
+
+  		var updateColor = function (node) {
+			if (graph.state.selectedNode != node) {
+	    		d3.select(node).style("fill", "white");
+	    	} else {
+	    		d3.select(node).style("fill", "LightCoral");
+	    	}
+		};
+
+  		var newNode = svg.append("circle")
 	        .style("stroke", "gray")
 	        .style("fill", "white")
 	        .attr("r", 40)
 	        .attr("cx", x)
 	        .attr("cy", y)
 	        .attr("id", id)
+	        .call(dragNode)
 	        .on("mouseover", function(){
 	        	d3.select(this).style("fill", "aliceblue");
 	        })
 	        .on("mouseout", function(){
-	        	updateColor(this,parent);
+	        	updateColor(this);
 	        })
 	        .on("click", function() {
 	        	//click on node to select or deselect
-	        	if (parent.state.selectedNode == this) {
-	        		parent.state.selectedNode = null;
+	        	if (graph.state.selectedNode == this) {
+	        		graph.state.selectedNode = null;
 	        		d3.select(this).style("fill", "white");
 	        	} else {
-	        		oldNode = parent.state.selectedNode;
-	        		parent.state.selectedNode = this;
+	        		oldNode = graph.state.selectedNode;
+	        		graph.state.selectedNode = this;
 	        		if (oldNode != null) {
-	        			updateColor(oldNode,parent);
+	        			updateColor(oldNode);
 	        		}
-	        		updateColor(this,parent);
+	        		updateColor(this);
 	        	}
-	        	console.log(parent);
 	        });
   	}
-
- //  	Node.prototype.updateColor = function (parent) {
-	// 	if (parent.state.selectedNode != this) {
- //    		d3.select(this).style("fill", "white");
- //    	} else {
- //    		d3.select(this).style("fill", "LightCoral");
- //    	}
-	// };
 
 	var GraphCreator = function(svg, nodes, edges) {
 		var thisGraph = this;
@@ -119,7 +111,7 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
 	    });
 	    svg.on("dblclick", function() {
 	    	console.log("double click at "+d3.mouse(this)+", created a node");
-	    	var newNode = new Node(svg,thisGraph,d3.mouse(this)[0],d3.mouse(this)[1]);
+	    	var newNode = new Node(svg,d3.mouse(this)[0],d3.mouse(this)[1]);
 	    	thisGraph.nodes.push(newNode);
 	    	// for (var i in thisGraph.nodes) {
 		   	// 	console.log(thisGraph.nodes[i].id);
