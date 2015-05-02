@@ -4,7 +4,28 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
     	defaultTitle: "random variable"
   	};
 
+  	// var dragNode = d3.behavior.drag()  
+	  //   .on('dragstart', function() { 
+	  //   	circle.style('fill', 'aliceblue'); 
+	  //   })
+	  //   .on('drag', function() { 
+	  //   	circle.attr('cx', d3.event.x).attr('cy', d3.event.y); 
+	  //   })
+	  //   .on('dragend', function() { 
+	  //   	circle.style('fill', 'black'); 
+	  //   });
+
   	var Node = function(svg, parent, x, y) {
+
+  		var updateColor = function (node, parent) {
+			if (parent.state.selectedNode != node) {
+	    		d3.select(node).style("fill", "white");
+	    	} else {
+	    		d3.select(node).style("fill", "LightCoral");
+	    	}
+		};
+
+  		//constructor
   		if (Node.count == undefined) {
 	    	Node.count = 1;
 	    } else {
@@ -23,11 +44,7 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
 	        	d3.select(this).style("fill", "aliceblue");
 	        })
 	        .on("mouseout", function(){
-	        	if (parent.state.selectedNode != this) {
-	        		d3.select(this).style("fill", "white");
-	        	} else {
-	        		d3.select(this).style("fill", "LightCoral");
-	        	}
+	        	updateColor(this,parent);
 	        })
 	        .on("click", function() {
 	        	//click on node to select or deselect
@@ -36,15 +53,23 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
 	        		d3.select(this).style("fill", "white");
 	        	} else {
 	        		oldNode = parent.state.selectedNode;
-	        		if (oldNode != null) {
-	        			d3.select(oldNode).style("fill", "white");
-	        		}
 	        		parent.state.selectedNode = this;
-	        		d3.select(this).style("fill", "LightCoral");
+	        		if (oldNode != null) {
+	        			updateColor(oldNode,parent);
+	        		}
+	        		updateColor(this,parent);
 	        	}
 	        	console.log(parent);
-	        })
+	        });
   	}
+
+ //  	Node.prototype.updateColor = function (parent) {
+	// 	if (parent.state.selectedNode != this) {
+ //    		d3.select(this).style("fill", "white");
+ //    	} else {
+ //    		d3.select(this).style("fill", "LightCoral");
+ //    	}
+	// };
 
 	var GraphCreator = function(svg, nodes, edges) {
 		var thisGraph = this;
