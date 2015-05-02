@@ -4,7 +4,7 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
     	defaultTitle: "random variable"
   	};
 
-  	var Node = function(svg, x, y) {
+  	var Node = function(svg, parent, x, y) {
   		if (Node.count == undefined) {
 	    	Node.count = 1;
 	    } else {
@@ -23,13 +23,27 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
 	        	d3.select(this).style("fill", "aliceblue");
 	        })
 	        .on("mouseout", function(){
-	        	d3.select(this).style("fill", "white");
-	        });
-	    // return {
-	    // 	x:x,
-	    // 	y:y,
-	    // 	id:id,
-	    // };
+	        	if (parent.state.selectedNode != this) {
+	        		d3.select(this).style("fill", "white");
+	        	} else {
+	        		d3.select(this).style("fill", "LightCoral");
+	        	}
+	        })
+	        .on("click", function() {
+	        	//click on node to select or deselect
+	        	if (parent.state.selectedNode == this) {
+	        		parent.state.selectedNode = null;
+	        		d3.select(this).style("fill", "white");
+	        	} else {
+	        		oldNode = parent.state.selectedNode;
+	        		if (oldNode != null) {
+	        			d3.select(oldNode).style("fill", "white");
+	        		}
+	        		parent.state.selectedNode = this;
+	        		d3.select(this).style("fill", "LightCoral");
+	        	}
+	        	console.log(parent);
+	        })
   	}
 
 	var GraphCreator = function(svg, nodes, edges) {
@@ -80,17 +94,12 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
 	    });
 	    svg.on("dblclick", function() {
 	    	console.log("double click at "+d3.mouse(this)+", created a node");
-	    	var newNode = new Node(svg,d3.mouse(this)[0],d3.mouse(this)[1]);
+	    	var newNode = new Node(svg,thisGraph,d3.mouse(this)[0],d3.mouse(this)[1]);
 	    	thisGraph.nodes.push(newNode);
 	    	// for (var i in thisGraph.nodes) {
 		   	// 	console.log(thisGraph.nodes[i].id);
 	    	// }
 	    });
-
-	    //double click, create a new node
-	    // thisGraph.prototype.on("dblclick", function() {
-	    // 	console.log("hello");
-	    // });
 	}
 
 
