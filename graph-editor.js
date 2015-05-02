@@ -4,6 +4,34 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
     	defaultTitle: "random variable"
   	};
 
+  	var Node = function(svg, x, y) {
+  		if (Node.count == undefined) {
+	    	Node.count = 1;
+	    } else {
+	    	Node.count ++;
+	    }
+	    var id = "Node_"+Node.count;
+	    this.x=x;this.y=y;this.id=id;
+  		svg.append("circle")
+	        .style("stroke", "gray")
+	        .style("fill", "white")
+	        .attr("r", 40)
+	        .attr("cx", x)
+	        .attr("cy", y)
+	        .attr("id", id)
+	        .on("mouseover", function(){
+	        	d3.select(this).style("fill", "aliceblue");
+	        })
+	        .on("mouseout", function(){
+	        	d3.select(this).style("fill", "white");
+	        });
+	    // return {
+	    // 	x:x,
+	    // 	y:y,
+	    // 	id:id,
+	    // };
+  	}
+
 	var GraphCreator = function(svg, nodes, edges) {
 		var thisGraph = this;
 		
@@ -49,10 +77,15 @@ document.onload = (function (d3, saveAs, Blob, undefined) {
 	    svg.on("mouseup", function(d){
 	    	//thisGraph.svgMouseUp.call(thisGraph, d);
 	    	//console.log("mouse up");
-	    })
-	    .on("dblclick", function() {
-	    	console.log("double click at "+d3.mouse(this));
-	    });;
+	    });
+	    svg.on("dblclick", function() {
+	    	console.log("double click at "+d3.mouse(this)+", created a node");
+	    	var newNode = new Node(svg,d3.mouse(this)[0],d3.mouse(this)[1]);
+	    	thisGraph.nodes.push(newNode);
+	    	// for (var i in thisGraph.nodes) {
+		   	// 	console.log(thisGraph.nodes[i].id);
+	    	// }
+	    });
 
 	    //double click, create a new node
 	    // thisGraph.prototype.on("dblclick", function() {
